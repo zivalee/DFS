@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ziva/CLionProjects/C++/DFS/main.cpp
+iostream
+-
+vector
+-
+algorithm
+-
+stack
+-
+climits
+-
+

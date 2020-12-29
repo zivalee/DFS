@@ -1,8 +1,23 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <bits/stdc++.h>
+#include <stack>
+#include <climits>
+
 using namespace std;
+
+// x: burst time, y: arrival time
+vector<pair<int, int>> jobs = {{6, 0},
+                               {2, 2},
+                               {3, 2},
+                               {2, 6},
+                               {5, 7},
+                               {2, 9}};
+int n = 6;  // number of jobs
+int best = INT_MAX;
+vector<pair<int, int>> tmpArr;
+vector<pair<int, int>> bestPermutation;
+
 
 int calScheduledSumC(vector<pair<int, int>> node) {
     vector<int> sum;
@@ -21,7 +36,11 @@ int calScheduledSumC(vector<pair<int, int>> node) {
 
 // first: Process Length (pj)
 // second: Arrival Time (rj)
-int estimateLB(vector<pair<int, int>> proc, int n) {
+int estimateLB(vector<pair<int, int>> proc) {
+    int n = proc.size();
+    if (n == 0) {
+        return 0;
+    }
     int diff = 0;
     int afterCountT = 0;
     vector<int> wt;
@@ -77,19 +96,12 @@ int estimateLB(vector<pair<int, int>> proc, int n) {
         heap->push_back(proc[i].first);
         push_heap(heap->begin(), heap->end(), greater<>{});
 
-        // print heap
-//        for (int i = 0; i < heap.size(); i++) {
-//            cout << heap[i] << ", ";
-//        }
-
         // save last job arrive time for later counting
         if (i == n - 1) {
             afterCountT = proc[i].second;
         }
 
     }
-
-//    cout << "afterCountT "<< afterCountT << endl;
 
     // after all process length are put into heap
     // count the finished time of the remaining jobs in heap
@@ -110,7 +122,62 @@ int estimateLB(vector<pair<int, int>> proc, int n) {
     return total;
 }
 
+void DFS(vector<pair<int, int>> jobs, int i, int n) {
+    vector<pair<int, int>> scheduled;
+    vector<pair<int, int>> toCount;
+
+    // base condition
+    if (i == n - 1) {
+        for (int j = 0; j < jobs.size(); j++) {
+            cout << "[";
+            cout << jobs[j].first << ",";
+            cout << jobs[j].second;
+            if (j < jobs.size() - 1) cout << "],";
+            else cout << "]";
+            tmpArr.push_back(jobs[j]);
+        }
+        cout << endl;
+        int objectValue = calScheduledSumC(tmpArr);
+        tmpArr.clear();
+        if (objectValue <= best) {
+            best = objectValue;
+            bestPermutation = tmpArr;
+        }
+        cout << best << ", ";
+    }
+
+
+    // estimate LB
+    for (int k = 0; k <= i; k++) {
+        scheduled.push_back(jobs[k]);
+    }
+    for (int m = i; m < n; m++) {
+        if (m == 5) {
+            break;
+        }
+        toCount.push_back(jobs[m + 1]);
+    }
+    int LB = calScheduledSumC(scheduled) + estimateLB(toCount);
+    cout << "*" << LB << ", ";
+
+    if (LB < best) {
+        cout << "%";
+        for (int j = i; j < n; j++) {
+            swap(jobs[i], jobs[j]);
+            DFS(jobs, i + 1, n);
+            swap(jobs[i], jobs[j]);
+        }
+    }
+}
+
+
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    clock_t start = clock();
+    DFS(::jobs, 0, 6);
+    clock_t end = clock();
+    double elapsed_secs = double(end - start);
+    cout << endl << "Best: " << best;
+    cout << endl << "elapsed run time: " << elapsed_secs << " ms, ";
+
     return 0;
 }
