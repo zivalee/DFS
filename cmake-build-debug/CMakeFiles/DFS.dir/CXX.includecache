@@ -13,8 +13,8 @@ vector
 -
 algorithm
 -
-stack
--
 climits
+-
+bits/stdc++.h
 -
 
